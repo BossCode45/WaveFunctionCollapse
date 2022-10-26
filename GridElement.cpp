@@ -69,7 +69,7 @@ void GridElement::narrow(GridElement* adjacent[])
 
 void GridElement::pick()
 {
-	int index = (possibilities.size()!=1)? rand()%(possibilities.size()-1) : 0;
+	int index = rand()%possibilities.size(); //(possibilities.size()!=1)? rand()%(possibilities.size()-1) : 0;
 	tile = possibilities[index];
 	collapsed = true;
 }
