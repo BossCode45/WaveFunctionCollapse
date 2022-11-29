@@ -15,38 +15,56 @@ GridElement::GridElement(std::vector<Tile*> possibleTiles)
 	tile = NULL;
 }
 
-void GridElement::narrow(GridElement* adjacent[])
+bool checkSide(Tile* thisTile, GridElement* otherElement, int dir)
 {
+	if(otherElement == NULL)
+		return(false);
+	else if(!otherElement->collapsed)
+	{
+		for(Tile* t : otherElement->possibilities)
+		{
+			if(vecIn(t->neighbors[(dir+2)%4], thisTile))
+			{
+				return(false);
+			}
+		}
+		return(true);
+	}
+	else if(vecIn(otherElement->tile->neighbors[(dir+2)%4], thisTile))
+		return(false);
+	return(true);
+}
+
+bool GridElement::narrow(GridElement* adjacent[])
+{
+	bool ret = false;
 	vector<int> toRemove;
 	for(int i = 0; i < possibilities.size(); i++)
 	{
 		Tile* t = possibilities[i];
-		if(!(adjacent[0] == NULL || !adjacent[0]->collapsed || vecIn(adjacent[0]->tile->neighbors[2], t)))
+		for(int dir = 0; dir < 4; dir++)
 		{
-			toRemove.push_back(i);
-			continue;
+			if(checkSide(t, adjacent[dir], dir))
+			{
+				toRemove.push_back(i);
+				break;
+			}
 		}
-		if(!(adjacent[1] == NULL || !adjacent[1]->collapsed || vecIn(adjacent[1]->tile->neighbors[3], t)))
-		{
-			toRemove.push_back(i);
-			continue;
-		}
-		if(!(adjacent[2] == NULL || !adjacent[2]->collapsed || vecIn(adjacent[2]->tile->neighbors[0], t)))
-		{
-			toRemove.push_back(i);
-			continue;
-		}
-		if(!(adjacent[3] == NULL || !adjacent[3]->collapsed || vecIn(adjacent[3]->tile->neighbors[1], t)))
-		{
-			toRemove.push_back(i);
-			continue;
-		}
+	}
+	if(toRemove.size() > possibilities.size())
+	{
+		cout << "uh oh, toRemove is massive\n";
 	}
 	int removed = 0;
 	for(int i : toRemove)
 	{
+		if(i-removed > possibilities.size() || i-removed < 0)
+		{
+			cout << "uh oh, erasing something that doesn't exist\n";
+		}
 		possibilities.erase(possibilities.begin() + (i-removed));
 		removed++;
+		ret = true;
 	}
 	if(possibilities.size() < 1)
 	{
@@ -65,6 +83,7 @@ void GridElement::narrow(GridElement* adjacent[])
 		}
 		exit(1);
 	}
+	return ret;
 }
 
 void GridElement::pick()

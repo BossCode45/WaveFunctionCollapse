@@ -1,4 +1,4 @@
-# Very basic implimentation of wave function collapse
+# Kinda basic implimentation of wave function collapse
 ## Instructions
 Pre reqs:
  - SDL2

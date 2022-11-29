@@ -8,7 +8,7 @@ class GridElement
 {
 	public:
 		GridElement(std::vector<Tile*> possibleTiles);
-		void narrow(GridElement* adjacent[]);
+		bool narrow(GridElement* adjacent[]);
 		void pick();
 		bool collapsed;
 		Tile* tile;

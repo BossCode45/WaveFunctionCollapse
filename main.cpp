@@ -89,6 +89,30 @@ void close()
 	SDL_Quit();
 }
 
+void narrowAdjacents(int x, int y)
+{
+	for(int dX = -1; dX < 2; dX++)
+	{
+		for(int dY = -1; dY < 2; dY++)
+		{
+			if(!(x + dX >= 0 && x + dX < 20 && y + dY >= 0 && y + dY < 20))
+				continue;
+			if(dX + dY == 0 || dX + dY == 2 || dX + dY == -2)
+				continue;
+
+			GridElement* up = (y+dY>0)? &grid[x+dX][y+dY-1] : NULL;
+			GridElement* right = (x+dX<19)? &grid[x+dX+1][y+dY] : NULL;
+			GridElement* down = (y+dY<19)? &grid[x+dX][y+dY+1] : NULL;
+			GridElement* left = (x+dX>0)? &grid[x+dX-1][y+dY] : NULL;
+			GridElement* arr[4] = {up, right, down, left};
+			if(grid[x + dX][y + dY].narrow(arr))
+			{
+				narrowAdjacents(x + dX, y + dY);
+			}
+		}
+	}
+}
+
 void mainLoop()
 {
 	int picked = 1;
@@ -131,23 +155,7 @@ void mainLoop()
 			{
 				picked++;
 				grid[sX][sY].pick();
-				for(int dX = -1; dX < 2; dX++)
-				{
-					for(int dY = -1; dY < 2; dY++)
-					{
-						if(!(sX + dX >= 0 && sX + dX < 20 && sY + dY >= 0 && sY + dY < 20))
-							continue;
-						if(dX + dY == 0 || dX + dY == 2 || dX + dY == -2)
-							continue;
-						
-						GridElement* up = (sY+dY>0)? &grid[sX+dX][sY+dY-1] : NULL;
-						GridElement* right = (sX+dX<19)? &grid[sX+dX+1][sY+dY] : NULL;
-						GridElement* down = (sY+dY<19)? &grid[sX+dX][sY+dY+1] : NULL;
-						GridElement* left = (sX+dX>0)? &grid[sX+dX-1][sY+dY] : NULL;
-						GridElement* arr[4] = {up, right, down, left};
-						grid[sX + dX][sY + dY].narrow(arr);
-					}
-				}
+				narrowAdjacents(sX, sY);
 				if(picked == 400)
 				{
 					cout << "Finished\n";
